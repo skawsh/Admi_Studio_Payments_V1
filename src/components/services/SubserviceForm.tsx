@@ -1,13 +1,11 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash, ShoppingBag } from "lucide-react";
 import { ClothingItem, NewClothingItem, Subservice } from "@/types/serviceTypes";
 import ClothingItemBadges from "./ClothingItemBadges";
 import ClothingItemForm from "./ClothingItemForm";
+import SelectSubservice from "./SelectSubservice";
+import PriceInputs from "./PriceInputs";
+import SubserviceActions from "./SubserviceActions";
 
 interface SubServiceFormProps {
   subservice: Omit<Subservice, "id">;
@@ -42,47 +40,22 @@ const SubserviceForm: React.FC<SubServiceFormProps> = ({
 }) => {
   return (
     <div className="p-4 border rounded-md">
-      <div className="space-y-3">
-        <Label htmlFor={`subservice-name-${index}`}>Sub Service Name</Label>
-        <Select 
-          onValueChange={(value) => onSubserviceSelect(index, value)}
-          value={subservice.name}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a subservice" />
-          </SelectTrigger>
-          <SelectContent>
-            {existingServices
-              .find(s => s.id === selectedService)
-              ?.subservices.map((sub) => (
-              <SelectItem key={sub.id} value={sub.id}>
-                {sub.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor={`subservice-price-${index}`}>Base Price</Label>
-            <Input
-              id={`subservice-price-${index}`}
-              type="number"
-              placeholder="Base Price"
-              value={subservice.basePrice}
-              onChange={(e) => onSubserviceChange(index, "basePrice", parseFloat(e.target.value) || 0)}
-            />
-          </div>
-          <div>
-            <Label htmlFor={`subservice-unit-${index}`}>Price Unit</Label>
-            <Input
-              id={`subservice-unit-${index}`}
-              placeholder="e.g. per kg, per piece"
-              value={subservice.priceUnit}
-              onChange={(e) => onSubserviceChange(index, "priceUnit", e.target.value)}
-            />
-          </div>
-        </div>
+      <SelectSubservice 
+        value={subservice.name}
+        onValueChange={(value) => onSubserviceSelect(index, value)}
+        selectedService={selectedService}
+        existingServices={existingServices}
+        index={index}
+      />
+      
+      <div className="mt-3">
+        <PriceInputs 
+          basePrice={subservice.basePrice}
+          priceUnit={subservice.priceUnit}
+          onBasePriceChange={(value) => onSubserviceChange(index, "basePrice", value)}
+          onPriceUnitChange={(value) => onSubserviceChange(index, "priceUnit", value)}
+          index={index}
+        />
       </div>
       
       <ClothingItemBadges 
@@ -90,29 +63,11 @@ const SubserviceForm: React.FC<SubServiceFormProps> = ({
         onRemoveItem={(itemIndex) => onRemoveItem(index, itemIndex)}
       />
       
-      <div className="flex gap-2 mt-3">
-        <Button
-          type="button"
-          onClick={() => onToggleItemsPanel(index)}
-          variant="outline"
-          className="text-blue-600 border-blue-200 hover:bg-blue-50"
-          size="sm"
-        >
-          <ShoppingBag className="h-4 w-4 mr-1" />
-          {activeSubserviceIndex === index ? 'Hide Items' : 'Add Items'}
-        </Button>
-        
-        <Button
-          type="button"
-          onClick={() => onRemoveSubservice(index)}
-          variant="outline"
-          className="border-red-200 text-red-600 hover:bg-red-50"
-          size="sm"
-        >
-          <Trash className="h-4 w-4 mr-1" />
-          Remove
-        </Button>
-      </div>
+      <SubserviceActions 
+        onToggleItemsPanel={() => onToggleItemsPanel(index)}
+        onRemoveSubservice={() => onRemoveSubservice(index)}
+        isActive={activeSubserviceIndex === index}
+      />
       
       {activeSubserviceIndex === index && (
         <ClothingItemForm
