@@ -24,7 +24,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
     : [];
     
   // Find the selected subservice name for display
-  const selectedSubservice = availableSubservices.find(sub => sub.id === value);
+  const selectedSubservice = availableSubservices.find(sub => sub.name === value);
 
   return (
     <div className="space-y-3">
@@ -35,7 +35,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
       >
         <SelectTrigger id={`subservice-name-${index}`} className="bg-white">
           <SelectValue placeholder="Select a subservice">
-            {selectedSubservice?.name}
+            {value}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>

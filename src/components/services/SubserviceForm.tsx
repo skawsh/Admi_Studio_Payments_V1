@@ -41,7 +41,7 @@ const SubserviceForm: React.FC<SubServiceFormProps> = ({
   return (
     <div className="p-4 border rounded-md">
       <SelectSubservice 
-        value={subservice.id || ""}
+        value={subservice.name}
         onValueChange={(value) => onSubserviceSelect(index, value)}
         selectedService={selectedService}
         existingServices={existingServices}
