@@ -176,22 +176,13 @@ const AddStudio: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <Button 
-              variant="service" 
-              onClick={handleAddService}
-            >
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Add Services
-            </Button>
-            <button
-              onClick={form.handleSubmit(onSubmit)}
-              className="flex items-center px-4 py-2 bg-admin-primary text-white rounded-md hover:bg-opacity-90"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Studio
-            </button>
-          </div>
+          <button
+            onClick={form.handleSubmit(onSubmit)}
+            className="flex items-center px-4 py-2 bg-admin-primary text-white rounded-md hover:bg-opacity-90"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save Studio
+          </button>
         </div>
 
         <Form {...form}>
@@ -736,6 +727,14 @@ const AddStudio: React.FC = () => {
             </Card>
 
             <div className="flex justify-end space-x-3">
+              <Button 
+                variant="service" 
+                onClick={handleAddService}
+                className="mr-auto"
+              >
+                <PlusCircle className="h-4 w-4 mr-1" />
+                Add Services
+              </Button>
               <button
                 type="button"
                 onClick={handleGoBack}
