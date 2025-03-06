@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, PlusCircle, X } from 'lucide-react';
@@ -124,6 +125,15 @@ const AddStudio: React.FC = () => {
 
   const handleAddServiceSubmit = (serviceName: string, subservices: Omit<Subservice, "id">[]) => {
     try {
+      // Validate input data before processing
+      if (!serviceName.trim()) {
+        throw new Error("Service name is required");
+      }
+      
+      if (!subservices.length || !subservices.some(sub => sub.name.trim())) {
+        throw new Error("At least one subservice with a name is required");
+      }
+      
       const tempStudioId = "temp-studio-id";
       const newService = addServiceToStudio(tempStudioId, {
         name: serviceName,
@@ -131,18 +141,36 @@ const AddStudio: React.FC = () => {
         enabled: true
       });
       
+      if (!newService || !newService.id) {
+        throw new Error("Failed to add service");
+      }
+      
       let subserviceIds: { id: string; name: string }[] = [];
       
-      subservices.forEach(subservice => {
-        const newSubservice = addSubserviceToService(tempStudioId, newService.id, subservice);
-        if (newSubservice) {
+      // Process each subservice
+      for (const subservice of subservices) {
+        if (!subservice.name.trim()) continue;
+        
+        const newSubservice = addSubserviceToService(tempStudioId, newService.id, {
+          ...subservice,
+          basePrice: parseFloat(String(subservice.basePrice)) || 0,
+          priceUnit: subservice.priceUnit || "",
+          items: (subservice.items || []).map(item => ({
+            ...item,
+            standardPrice: parseFloat(String(item.standardPrice)) || 0,
+            expressPrice: parseFloat(String(item.expressPrice)) || 0
+          }))
+        });
+        
+        if (newSubservice && newSubservice.id) {
           subserviceIds.push({
             id: newSubservice.id,
             name: newSubservice.name
           });
         }
-      });
+      }
 
+      // Update state with new service
       setAddedServices(prev => [...prev, {
         id: newService.id,
         name: newService.name,
@@ -157,9 +185,10 @@ const AddStudio: React.FC = () => {
       
       setAddServiceModalOpen(false);
     } catch (error) {
+      console.error("Error adding service:", error);
       toast({
         title: "Error",
-        description: "Failed to add service",
+        description: error instanceof Error ? error.message : "Failed to add service",
         variant: "destructive",
         duration: 3000,
       });

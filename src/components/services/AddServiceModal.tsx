@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -5,7 +6,8 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogFooter,
-  DialogClose
+  DialogClose,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -163,6 +165,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   };
 
   const handleSave = () => {
+    // Validation checks
     if (!serviceName.trim()) {
       toast({
         title: "Invalid input",
@@ -183,18 +186,23 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     }
 
     try {
+      // Ensure all number fields are properly converted and have fallback values
       const cleanedSubservices = subservices.map(sub => ({
         ...sub,
-        basePrice: Number(sub.basePrice) || 0,
+        name: sub.name.trim(),
+        basePrice: parseFloat(String(sub.basePrice)) || 0,
         priceUnit: sub.priceUnit || "",
         items: sub.items.map(item => ({
           ...item,
-          standardPrice: typeof item.standardPrice === 'number' ? item.standardPrice : 0,
-          expressPrice: typeof item.expressPrice === 'number' ? item.expressPrice : 0
+          id: item.id || generateTempId(),
+          name: item.name.trim(),
+          standardPrice: parseFloat(String(item.standardPrice)) || 0,
+          expressPrice: parseFloat(String(item.expressPrice)) || 0
         }))
       }));
       
-      onAddService(serviceName, cleanedSubservices);
+      // Call the onAddService prop with the cleaned data
+      onAddService(serviceName.trim(), cleanedSubservices);
       resetForm();
     } catch (error) {
       console.error("Error saving service:", error);
@@ -226,6 +234,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
           <DialogTitle className="text-center text-xl font-semibold text-blue-600">
             Add Service
           </DialogTitle>
+          <DialogDescription className="text-center text-sm text-gray-500">
+            Add a new service with its subservices and items
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
