@@ -21,7 +21,7 @@ const PriceInputs: React.FC<PriceInputsProps> = ({
   return (
     <div className="grid grid-cols-2 gap-3">
       <div>
-        <Label htmlFor={`subservice-price-${index}`}>Price</Label>
+        <Label htmlFor={`subservice-price-${index}`}>Price per KG</Label>
         <Input
           id={`subservice-price-${index}`}
           type="text"
@@ -35,7 +35,7 @@ const PriceInputs: React.FC<PriceInputsProps> = ({
         />
       </div>
       <div>
-        <Label htmlFor={`subservice-unit-${index}`}>Unit</Label>
+        <Label htmlFor={`subservice-unit-${index}`}>Price per Item</Label>
         <Input
           id={`subservice-unit-${index}`}
           type="text"
