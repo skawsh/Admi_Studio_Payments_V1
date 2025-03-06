@@ -21,17 +21,21 @@ const PriceInputs: React.FC<PriceInputsProps> = ({
   return (
     <div className="grid grid-cols-2 gap-3">
       <div>
-        <Label htmlFor={`subservice-price-${index}`}>Price per Kg</Label>
+        <Label htmlFor={`subservice-price-${index}`}>Price</Label>
         <Input
           id={`subservice-price-${index}`}
-          type="number"
-          placeholder="Enter price per kg"
-          value={basePrice}
-          onChange={(e) => onBasePriceChange(parseFloat(e.target.value) || 0)}
+          type="text"
+          placeholder="Enter price"
+          value={basePrice === 0 ? "" : basePrice}
+          onChange={(e) => {
+            const value = e.target.value;
+            const numericValue = parseFloat(value);
+            onBasePriceChange(isNaN(numericValue) ? 0 : numericValue);
+          }}
         />
       </div>
       <div>
-        <Label htmlFor={`subservice-unit-${index}`}>Price per item</Label>
+        <Label htmlFor={`subservice-unit-${index}`}>Unit</Label>
         <Input
           id={`subservice-unit-${index}`}
           type="text"

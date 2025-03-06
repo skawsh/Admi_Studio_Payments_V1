@@ -37,7 +37,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   const [serviceName, setServiceName] = useState("");
   const [selectedService, setSelectedService] = useState<string>("");
   const [subservices, setSubservices] = useState<Array<Omit<Subservice, "id">>>(
-    [{ name: "", basePrice: 0, priceUnit: "per Kg", items: [], enabled: true }]
+    [{ name: "", basePrice: 0, priceUnit: "", items: [], enabled: true }]
   );
   const [activeSubserviceIndex, setActiveSubserviceIndex] = useState<number | null>(null);
   const [newItem, setNewItem] = useState<NewClothingItem>({
@@ -75,7 +75,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   };
 
   const handleAddSubservice = () => {
-    setSubservices([...subservices, { name: "", basePrice: 0, priceUnit: "per Kg", items: [], enabled: true }]);
+    setSubservices([...subservices, { name: "", basePrice: 0, priceUnit: "", items: [], enabled: true }]);
   };
 
   const handleRemoveSubservice = (index: number) => {
@@ -188,7 +188,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 
   const resetForm = () => {
     setServiceName("");
-    setSubservices([{ name: "", basePrice: 0, priceUnit: "per piece", items: [], enabled: true }]);
+    setSubservices([{ name: "", basePrice: 0, priceUnit: "", items: [], enabled: true }]);
     setActiveSubserviceIndex(null);
     setNewItem({
       name: "",
