@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, PlusCircle } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,11 +17,14 @@ import {
   FormLabel,
   FormMessage 
 } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import AddServiceModal from '@/components/services/AddServiceModal';
+import { addServiceToStudio, addSubserviceToService } from '@/data/mockServiceData';
+import { Subservice } from '@/types/serviceTypes';
 
-// Define the form schema with validation
 const studioFormSchema = z.object({
   name: z.string().min(1, "Studio name is required"),
   ownerName: z.string().min(1, "Owner first name is required"),
@@ -31,7 +33,6 @@ const studioFormSchema = z.object({
   secondaryNumber: z.string().optional(),
   email: z.string().email("Invalid email address").optional().or(z.literal('')),
   
-  // Address Details
   street: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -39,13 +40,11 @@ const studioFormSchema = z.object({
   latitude: z.string().optional(),
   longitude: z.string().optional(),
   
-  // Studio Setup
   numberOfEmployees: z.coerce.number().int().nonnegative().optional(),
   dailyCapacity: z.coerce.number().int().nonnegative().optional(),
   specialEquipment: z.string().optional(),
   washCategory: z.enum(['standard', 'express', 'both']).default('both'),
   
-  // Business Details
   businessRegistrationNumber: z.string().optional(),
   gstNumber: z.string().optional(),
   panNumber: z.string().optional(),
@@ -53,7 +52,6 @@ const studioFormSchema = z.object({
   closingTime: z.string().optional(),
   priceAdjustmentPercentage: z.coerce.number().int().optional(),
   
-  // Payment Details
   accountNumber: z.string().optional(),
   accountHolderName: z.string().optional(),
   bankName: z.string().optional(),
@@ -68,6 +66,7 @@ type StudioFormValues = z.infer<typeof studioFormSchema>;
 const AddStudio: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   
   const form = useForm<StudioFormValues>({
     resolver: zodResolver(studioFormSchema),
@@ -108,6 +107,40 @@ const AddStudio: React.FC = () => {
     }
   });
 
+  const handleAddService = () => {
+    setAddServiceModalOpen(true);
+  };
+
+  const handleAddServiceSubmit = (serviceName: string, subservices: Omit<Subservice, "id">[]) => {
+    try {
+      const tempStudioId = "temp-studio-id";
+      const newService = addServiceToStudio(tempStudioId, {
+        name: serviceName,
+        subservices: [],
+        enabled: true
+      });
+      
+      subservices.forEach(subservice => {
+        addSubserviceToService(tempStudioId, newService.id, subservice);
+      });
+
+      toast({
+        title: "Success",
+        description: "Service added successfully",
+        duration: 3000,
+      });
+      
+      setAddServiceModalOpen(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add service",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
   const handleGoBack = () => {
     navigate('/studios');
   };
@@ -115,16 +148,12 @@ const AddStudio: React.FC = () => {
   const onSubmit = (data: StudioFormValues) => {
     console.log("Form data:", data);
     
-    // Here you would typically save the data to your backend
-    // For now, we'll just show a success toast and redirect
-    
     toast({
       title: "Studio added",
       description: `${data.name} has been added successfully`,
       duration: 3000,
     });
     
-    // Navigate back to studios list
     setTimeout(() => {
       navigate('/studios');
     }, 1000);
@@ -148,6 +177,13 @@ const AddStudio: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-3">
+            <Button 
+              variant="service" 
+              onClick={handleAddService}
+            >
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Add Services
+            </Button>
             <button
               onClick={form.handleSubmit(onSubmit)}
               className="flex items-center px-4 py-2 bg-admin-primary text-white rounded-md hover:bg-opacity-90"
@@ -160,7 +196,6 @@ const AddStudio: React.FC = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Information Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
@@ -266,7 +301,6 @@ const AddStudio: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Address Details Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Address Details</CardTitle>
@@ -372,7 +406,6 @@ const AddStudio: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Business Details Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Business Details</CardTitle>
@@ -478,7 +511,6 @@ const AddStudio: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Studio Setup Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Studio Setup</CardTitle>
@@ -569,7 +601,6 @@ const AddStudio: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Payment Details Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Payment Details</CardTitle>
@@ -722,6 +753,12 @@ const AddStudio: React.FC = () => {
           </form>
         </Form>
       </div>
+
+      <AddServiceModal 
+        isOpen={addServiceModalOpen}
+        onClose={() => setAddServiceModalOpen(false)}
+        onAddService={handleAddServiceSubmit}
+      />
     </AdminLayout>
   );
 };
