@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -37,7 +38,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   const [serviceName, setServiceName] = useState("");
   const [selectedService, setSelectedService] = useState<string>("");
   const [subservices, setSubservices] = useState<Array<Omit<Subservice, "id">>>(
-    [{ name: "", basePrice: 0, priceUnit: "per piece", items: [], enabled: true }]
+    [{ name: "", basePrice: 0, priceUnit: "per item", items: [], enabled: true }]
   );
   const [activeSubserviceIndex, setActiveSubserviceIndex] = useState<number | null>(null);
   const [newItem, setNewItem] = useState<NewClothingItem>({
@@ -65,7 +66,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
         newSubservices[index] = {
           name: subservice.name,
           basePrice: subservice.basePrice || 0,
-          priceUnit: subservice.priceUnit || "per piece",
+          priceUnit: subservice.priceUnit || "per item",
           items: [...(subservice.items || [])],
           enabled: true
         };
