@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -64,6 +63,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
       
       if (subservice) {
         const newSubservices = [...subservices];
+        const currentSubservice = newSubservices[index];
         newSubservices[index] = {
           ...newSubservices[index],
           name: subservice.name,
@@ -183,10 +183,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     }
 
     try {
-      // Make sure all required fields have valid values before submission
       const cleanedSubservices = subservices.map(sub => ({
         ...sub,
-        basePrice: sub.basePrice || 0,
+        basePrice: Number(sub.basePrice) || 0,
         priceUnit: sub.priceUnit || "",
         items: sub.items.map(item => ({
           ...item,

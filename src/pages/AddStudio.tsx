@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Save, PlusCircle, X } from 'lucide-react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,8 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import AddServiceModal from '@/components/services/AddServiceModal';
 import { addServiceToStudio, addSubserviceToService } from '@/data/mockServiceData';
-import { Subservice } from '@/types/serviceTypes';
+import { Subservice, Service } from '@/types/serviceTypes';
+import { Badge } from '@/components/ui/badge';
 
 const studioFormSchema = z.object({
   name: z.string().min(1, "Studio name is required"),
@@ -63,10 +64,20 @@ const studioFormSchema = z.object({
 
 type StudioFormValues = z.infer<typeof studioFormSchema>;
 
+type AddedService = {
+  id: string;
+  name: string;
+  subservices: {
+    id: string;
+    name: string;
+  }[];
+};
+
 const AddStudio: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
+  const [addedServices, setAddedServices] = useState<AddedService[]>([]);
   
   const form = useForm<StudioFormValues>({
     resolver: zodResolver(studioFormSchema),
@@ -120,10 +131,24 @@ const AddStudio: React.FC = () => {
         enabled: true
       });
       
+      let subserviceIds: { id: string; name: string }[] = [];
+      
       subservices.forEach(subservice => {
-        addSubserviceToService(tempStudioId, newService.id, subservice);
+        const newSubservice = addSubserviceToService(tempStudioId, newService.id, subservice);
+        if (newSubservice) {
+          subserviceIds.push({
+            id: newSubservice.id,
+            name: newSubservice.name
+          });
+        }
       });
 
+      setAddedServices(prev => [...prev, {
+        id: newService.id,
+        name: newService.name,
+        subservices: subserviceIds
+      }]);
+      
       toast({
         title: "Success",
         description: "Service added successfully",
@@ -141,12 +166,23 @@ const AddStudio: React.FC = () => {
     }
   };
 
+  const handleRemoveService = (serviceId: string) => {
+    setAddedServices(prev => prev.filter(service => service.id !== serviceId));
+    
+    toast({
+      title: "Service removed",
+      description: "Service has been removed from this studio",
+      duration: 3000,
+    });
+  };
+
   const handleGoBack = () => {
     navigate('/studios');
   };
 
   const onSubmit = (data: StudioFormValues) => {
     console.log("Form data:", data);
+    console.log("Added services:", addedServices);
     
     toast({
       title: "Studio added",
@@ -727,14 +763,51 @@ const AddStudio: React.FC = () => {
             </Card>
 
             <div className="flex justify-end space-x-3">
-              <Button 
-                variant="service" 
-                onClick={handleAddService}
-                className="mr-auto"
-              >
-                <PlusCircle className="h-4 w-4 mr-1" />
-                Add Services
-              </Button>
+              <div className="mr-auto space-y-4">
+                <Button 
+                  variant="service" 
+                  onClick={handleAddService}
+                  className="mb-2"
+                  type="button"
+                >
+                  <PlusCircle className="h-4 w-4 mr-1" />
+                  Add Services
+                </Button>
+                
+                {addedServices.length > 0 && (
+                  <div className="bg-white rounded-lg shadow-sm p-4 max-w-lg">
+                    <h3 className="font-medium text-gray-700 mb-2">Added Services</h3>
+                    <div className="space-y-2">
+                      {addedServices.map(service => (
+                        <div 
+                          key={service.id} 
+                          className="bg-gray-50 p-2 rounded flex items-start justify-between"
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{service.name}</p>
+                            <div className="flex flex-wrap mt-1 gap-1">
+                              {service.subservices.map(sub => (
+                                <Badge key={sub.id} variant="outline" className="text-xs bg-blue-50">
+                                  {sub.name}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6" 
+                            onClick={() => handleRemoveService(service.id)}
+                          >
+                            <X className="h-4 w-4 text-gray-500" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <button
                 type="button"
                 onClick={handleGoBack}
