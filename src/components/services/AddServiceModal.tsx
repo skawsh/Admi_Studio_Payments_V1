@@ -14,6 +14,14 @@ import { Plus, Trash, ShoppingBag } from "lucide-react";
 import { Subservice, NewClothingItem, ClothingItem } from "@/types/serviceTypes";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { mockServices } from "@/data/mockServiceData";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -27,6 +35,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   onAddService 
 }) => {
   const [serviceName, setServiceName] = useState("");
+  const [selectedService, setSelectedService] = useState<string>("");
   const [subservices, setSubservices] = useState<Array<Omit<Subservice, "id">>>(
     [{ name: "", basePrice: 0, priceUnit: "per piece", items: [], enabled: true }]
   );
@@ -37,6 +46,33 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     expressPrice: 0
   });
   const { toast } = useToast();
+
+  const existingServices = mockServices;
+
+  const handleServiceSelect = (serviceId: string) => {
+    const service = existingServices.find(s => s.id === serviceId);
+    if (service) {
+      setServiceName(service.name);
+      setSelectedService(serviceId);
+    }
+  };
+
+  const handleSubserviceSelect = (index: number, subserviceId: string) => {
+    const selectedService = existingServices.find(s => s.id === selectedService);
+    const subservice = selectedService?.subservices.find(sub => sub.id === subserviceId);
+    
+    if (subservice) {
+      const newSubservices = [...subservices];
+      newSubservices[index] = {
+        name: subservice.name,
+        basePrice: subservice.basePrice || 0,
+        priceUnit: subservice.priceUnit || "per piece",
+        items: subservice.items,
+        enabled: true
+      };
+      setSubservices(newSubservices);
+    }
+  };
 
   const handleAddSubservice = () => {
     setSubservices([...subservices, { name: "", basePrice: 0, priceUnit: "per piece", items: [], enabled: true }]);
@@ -174,13 +210,18 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
         <div className="space-y-6 py-4">
           <div>
             <Label htmlFor="service-name">Service Name</Label>
-            <Input
-              id="service-name"
-              placeholder="Service Name"
-              value={serviceName}
-              onChange={(e) => setServiceName(e.target.value)}
-              className="mt-1"
-            />
+            <Select onValueChange={handleServiceSelect} value={selectedService}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select a service" />
+              </SelectTrigger>
+              <SelectContent>
+                {existingServices.map((service) => (
+                  <SelectItem key={service.id} value={service.id}>
+                    {service.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
@@ -190,12 +231,23 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
                 <div key={index} className="p-4 border rounded-md">
                   <div className="space-y-3">
                     <Label htmlFor={`subservice-name-${index}`}>Sub Service Name</Label>
-                    <Input
-                      id={`subservice-name-${index}`}
-                      placeholder="Sub service name"
+                    <Select 
+                      onValueChange={(value) => handleSubserviceSelect(index, value)}
                       value={subservice.name}
-                      onChange={(e) => handleSubserviceChange(index, "name", e.target.value)}
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a subservice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {existingServices
+                          .find(s => s.id === selectedService)
+                          ?.subservices.map((sub) => (
+                          <SelectItem key={sub.id} value={sub.id}>
+                            {sub.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     
                     <div className="grid grid-cols-2 gap-3">
                       <div>
