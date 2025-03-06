@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -8,12 +9,10 @@ import {
   DialogClose
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash, ShoppingBag } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Subservice, NewClothingItem, ClothingItem } from "@/types/serviceTypes";
 import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
 import { mockServices } from "@/data/mockServiceData";
 import {
   Select,
@@ -22,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import SubserviceForm from "./SubserviceForm";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -228,147 +228,22 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
             <Label>Sub Services</Label>
             <div className="space-y-4 mt-2">
               {subservices.map((subservice, index) => (
-                <div key={index} className="p-4 border rounded-md">
-                  <div className="space-y-3">
-                    <Label htmlFor={`subservice-name-${index}`}>Sub Service Name</Label>
-                    <Select 
-                      onValueChange={(value) => handleSubserviceSelect(index, value)}
-                      value={subservice.name}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a subservice" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {existingServices
-                          .find(s => s.id === selectedService)
-                          ?.subservices.map((sub) => (
-                          <SelectItem key={sub.id} value={sub.id}>
-                            {sub.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor={`subservice-price-${index}`}>Base Price</Label>
-                        <Input
-                          id={`subservice-price-${index}`}
-                          type="number"
-                          placeholder="Base Price"
-                          value={subservice.basePrice}
-                          onChange={(e) => handleSubserviceChange(index, "basePrice", parseFloat(e.target.value) || 0)}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor={`subservice-unit-${index}`}>Price Unit</Label>
-                        <Input
-                          id={`subservice-unit-${index}`}
-                          placeholder="e.g. per kg, per piece"
-                          value={subservice.priceUnit}
-                          onChange={(e) => handleSubserviceChange(index, "priceUnit", e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {subservice.items.length > 0 && (
-                    <div className="mt-3 pt-3 border-t">
-                      <Label className="mb-2 block">Clothing Items</Label>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {subservice.items.map((item, itemIndex) => (
-                          <Badge 
-                            key={itemIndex} 
-                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-1"
-                          >
-                            <span>{item.name}</span>
-                            <button 
-                              onClick={() => handleRemoveItem(index, itemIndex)}
-                              className="ml-1 text-blue-400 hover:text-blue-600"
-                            >
-                              <Trash className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex gap-2 mt-3">
-                    <Button
-                      type="button"
-                      onClick={() => handleToggleItemsPanel(index)}
-                      variant="outline"
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                      size="sm"
-                    >
-                      <ShoppingBag className="h-4 w-4 mr-1" />
-                      {activeSubserviceIndex === index ? 'Hide Items' : 'Add Items'}
-                    </Button>
-                    
-                    <Button
-                      type="button"
-                      onClick={() => handleRemoveSubservice(index)}
-                      variant="outline"
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                      size="sm"
-                    >
-                      <Trash className="h-4 w-4 mr-1" />
-                      Remove
-                    </Button>
-                  </div>
-                  
-                  {activeSubserviceIndex === index && (
-                    <div className="mt-3 pt-3 border-t space-y-3">
-                      <h4 className="font-medium text-sm text-gray-700">Add Clothing Item</h4>
-                      <div>
-                        <Label htmlFor={`item-name-${index}`}>Item Name</Label>
-                        <Input
-                          id={`item-name-${index}`}
-                          placeholder="Item name"
-                          value={newItem.name}
-                          onChange={(e) => handleNewItemChange("name", e.target.value)}
-                          className="mt-1"
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label htmlFor={`standard-price-${index}`}>Standard Price</Label>
-                          <Input
-                            id={`standard-price-${index}`}
-                            type="number"
-                            placeholder="Standard Price"
-                            value={newItem.standardPrice}
-                            onChange={(e) => handleNewItemChange("standardPrice", parseFloat(e.target.value) || 0)}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor={`express-price-${index}`}>Express Price</Label>
-                          <Input
-                            id={`express-price-${index}`}
-                            type="number"
-                            placeholder="Express Price"
-                            value={newItem.expressPrice}
-                            onChange={(e) => handleNewItemChange("expressPrice", parseFloat(e.target.value) || 0)}
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                      
-                      <Button
-                        type="button"
-                        onClick={handleAddItem}
-                        variant="outline"
-                        className="w-full text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-200"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Item
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <SubserviceForm
+                  key={index}
+                  subservice={subservice}
+                  index={index}
+                  activeSubserviceIndex={activeSubserviceIndex}
+                  selectedService={selectedService}
+                  existingServices={existingServices}
+                  newItem={newItem}
+                  onSubserviceSelect={handleSubserviceSelect}
+                  onSubserviceChange={handleSubserviceChange}
+                  onToggleItemsPanel={handleToggleItemsPanel}
+                  onRemoveSubservice={handleRemoveSubservice}
+                  onNewItemChange={handleNewItemChange}
+                  onAddItem={handleAddItem}
+                  onRemoveItem={handleRemoveItem}
+                />
               ))}
             </div>
 
