@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -21,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import SubserviceForm from "./SubserviceForm";
+import { Input } from "@/components/ui/input";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -180,12 +182,34 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
       return;
     }
 
-    onAddService(serviceName, subservices);
-    resetForm();
+    try {
+      // Make sure all required fields have valid values before submission
+      const cleanedSubservices = subservices.map(sub => ({
+        ...sub,
+        basePrice: sub.basePrice || 0,
+        priceUnit: sub.priceUnit || "",
+        items: sub.items.map(item => ({
+          ...item,
+          standardPrice: typeof item.standardPrice === 'number' ? item.standardPrice : 0,
+          expressPrice: typeof item.expressPrice === 'number' ? item.expressPrice : 0
+        }))
+      }));
+      
+      onAddService(serviceName, cleanedSubservices);
+      resetForm();
+    } catch (error) {
+      console.error("Error saving service:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add service. Please check all fields and try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const resetForm = () => {
     setServiceName("");
+    setSelectedService("");
     setSubservices([{ name: "", basePrice: 0, priceUnit: "", items: [], enabled: true }]);
     setActiveSubserviceIndex(null);
     setNewItem({
@@ -208,18 +232,27 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
         <div className="space-y-6 py-4">
           <div>
             <Label htmlFor="service-name">Service Name</Label>
-            <Select onValueChange={handleServiceSelect} value={selectedService}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select a service" />
-              </SelectTrigger>
-              <SelectContent>
-                {existingServices.map((service) => (
-                  <SelectItem key={service.id} value={service.id}>
-                    {service.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex space-x-2 mt-1">
+              <Input
+                id="service-name"
+                value={serviceName}
+                onChange={(e) => setServiceName(e.target.value)}
+                placeholder="Enter service name"
+                className="flex-1"
+              />
+              <Select onValueChange={handleServiceSelect} value={selectedService}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Or select existing" />
+                </SelectTrigger>
+                <SelectContent>
+                  {existingServices.map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div>
