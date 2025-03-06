@@ -63,11 +63,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
       if (subservice) {
         const newSubservices = [...subservices];
         newSubservices[index] = {
+          ...newSubservices[index],
           name: subservice.name,
-          basePrice: subservice.basePrice || 0,
-          priceUnit: subservice.priceUnit || "per item",
           items: [...(subservice.items || [])],
-          enabled: true
         };
         setSubservices(newSubservices);
       }
