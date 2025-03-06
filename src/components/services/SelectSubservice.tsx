@@ -23,9 +23,6 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
     ? existingServices.find(s => s.id === selectedService)?.subservices || []
     : [];
     
-  // Find the selected subservice name for display
-  const selectedSubservice = availableSubservices.find(sub => sub.name === value);
-
   return (
     <div className="space-y-3">
       <Label htmlFor={`subservice-name-${index}`}>Sub Service Name</Label>
@@ -40,7 +37,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
         </SelectTrigger>
         <SelectContent>
           {availableSubservices.map((sub) => (
-            <SelectItem key={sub.id} value={sub.id}>
+            <SelectItem key={sub.id} value={sub.name}>
               {sub.name}
             </SelectItem>
           ))}

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -34,6 +33,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   onClose,
   onAddService 
 }) => {
+  const existingServices = mockServices;
   const [serviceName, setServiceName] = useState("");
   const [selectedService, setSelectedService] = useState<string>("");
   const [subservices, setSubservices] = useState<Array<Omit<Subservice, "id">>>(
@@ -47,8 +47,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   });
   const { toast } = useToast();
 
-  const existingServices = mockServices;
-
   const handleServiceSelect = (serviceId: string) => {
     const service = existingServices.find(s => s.id === serviceId);
     if (service) {
@@ -57,20 +55,22 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     }
   };
 
-  const handleSubserviceSelect = (index: number, subserviceId: string) => {
-    const selectedService = existingServices.find(s => s.id === selectedService);
-    const subservice = selectedService?.subservices.find(sub => sub.id === subserviceId);
-    
-    if (subservice) {
-      const newSubservices = [...subservices];
-      newSubservices[index] = {
-        name: subservice.name,
-        basePrice: subservice.basePrice || 0,
-        priceUnit: subservice.priceUnit || "per piece",
-        items: subservice.items,
-        enabled: true
-      };
-      setSubservices(newSubservices);
+  const handleSubserviceSelect = (index: number, subserviceName: string) => {
+    const service = existingServices.find(s => s.id === selectedService);
+    if (service) {
+      const subservice = service.subservices.find(sub => sub.name === subserviceName);
+      
+      if (subservice) {
+        const newSubservices = [...subservices];
+        newSubservices[index] = {
+          name: subservice.name,
+          basePrice: subservice.basePrice || 0,
+          priceUnit: subservice.priceUnit || "per piece",
+          items: [...(subservice.items || [])],
+          enabled: true
+        };
+        setSubservices(newSubservices);
+      }
     }
   };
 
