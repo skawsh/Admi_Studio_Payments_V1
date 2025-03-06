@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -12,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash, ShoppingBag } from "lucide-react";
-import { Subservice, NewClothingItem } from "@/types/serviceTypes";
+import { Subservice, NewClothingItem, ClothingItem } from "@/types/serviceTypes";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
@@ -56,7 +55,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     newSubservices.splice(index, 1);
     setSubservices(newSubservices);
     
-    // Reset active subservice if it was removed
     if (activeSubserviceIndex === index) {
       setActiveSubserviceIndex(null);
     } else if (activeSubserviceIndex !== null && activeSubserviceIndex > index) {
@@ -89,6 +87,10 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     });
   };
 
+  const generateTempId = () => {
+    return `temp-${Math.random().toString(36).substring(2, 9)}`;
+  };
+
   const handleAddItem = () => {
     if (activeSubserviceIndex === null) return;
     
@@ -104,7 +106,10 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     const newSubservices = [...subservices];
     newSubservices[activeSubserviceIndex].items = [
       ...newSubservices[activeSubserviceIndex].items,
-      { ...newItem }
+      { 
+        ...newItem,
+        id: generateTempId()
+      } as ClothingItem
     ];
     
     setSubservices(newSubservices);
@@ -215,7 +220,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
                     </div>
                   </div>
                   
-                  {/* Items Preview */}
                   {subservice.items.length > 0 && (
                     <div className="mt-3 pt-3 border-t">
                       <Label className="mb-2 block">Clothing Items</Label>
@@ -262,7 +266,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
                     </Button>
                   </div>
                   
-                  {/* Add Items Panel */}
                   {activeSubserviceIndex === index && (
                     <div className="mt-3 pt-3 border-t space-y-3">
                       <h4 className="font-medium text-sm text-gray-700">Add Clothing Item</h4>
