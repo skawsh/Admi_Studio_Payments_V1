@@ -11,9 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash } from "lucide-react";
-import { Subservice } from "@/types/serviceTypes";
+import { Plus, Trash, ShoppingBag } from "lucide-react";
+import { Subservice, NewClothingItem } from "@/types/serviceTypes";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -30,6 +31,12 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   const [subservices, setSubservices] = useState<Array<Omit<Subservice, "id">>>(
     [{ name: "", basePrice: 0, priceUnit: "per piece", items: [], enabled: true }]
   );
+  const [activeSubserviceIndex, setActiveSubserviceIndex] = useState<number | null>(null);
+  const [newItem, setNewItem] = useState<NewClothingItem>({
+    name: "",
+    standardPrice: 0,
+    expressPrice: 0
+  });
   const { toast } = useToast();
 
   const handleAddSubservice = () => {
@@ -48,6 +55,13 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     const newSubservices = [...subservices];
     newSubservices.splice(index, 1);
     setSubservices(newSubservices);
+    
+    // Reset active subservice if it was removed
+    if (activeSubserviceIndex === index) {
+      setActiveSubserviceIndex(null);
+    } else if (activeSubserviceIndex !== null && activeSubserviceIndex > index) {
+      setActiveSubserviceIndex(activeSubserviceIndex - 1);
+    }
   };
 
   const handleSubserviceChange = (index: number, field: "name" | "basePrice" | "priceUnit", value: string | number) => {
@@ -56,6 +70,54 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
       ...newSubservices[index],
       [field]: value
     };
+    setSubservices(newSubservices);
+  };
+
+  const handleToggleItemsPanel = (index: number) => {
+    setActiveSubserviceIndex(activeSubserviceIndex === index ? null : index);
+    setNewItem({
+      name: "",
+      standardPrice: 0,
+      expressPrice: 0
+    });
+  };
+
+  const handleNewItemChange = (field: keyof NewClothingItem, value: string | number) => {
+    setNewItem({
+      ...newItem,
+      [field]: value
+    });
+  };
+
+  const handleAddItem = () => {
+    if (activeSubserviceIndex === null) return;
+    
+    if (!newItem.name.trim()) {
+      toast({
+        title: "Invalid input",
+        description: "Item name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newSubservices = [...subservices];
+    newSubservices[activeSubserviceIndex].items = [
+      ...newSubservices[activeSubserviceIndex].items,
+      { ...newItem }
+    ];
+    
+    setSubservices(newSubservices);
+    setNewItem({
+      name: "",
+      standardPrice: 0,
+      expressPrice: 0
+    });
+  };
+
+  const handleRemoveItem = (subserviceIndex: number, itemIndex: number) => {
+    const newSubservices = [...subservices];
+    newSubservices[subserviceIndex].items.splice(itemIndex, 1);
     setSubservices(newSubservices);
   };
 
@@ -86,12 +148,18 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   const resetForm = () => {
     setServiceName("");
     setSubservices([{ name: "", basePrice: 0, priceUnit: "per piece", items: [], enabled: true }]);
+    setActiveSubserviceIndex(null);
+    setNewItem({
+      name: "",
+      standardPrice: 0,
+      expressPrice: 0
+    });
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold text-blue-600">
             Add Service
@@ -147,15 +215,104 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
                     </div>
                   </div>
                   
-                  <Button
-                    type="button"
-                    onClick={() => handleRemoveSubservice(index)}
-                    variant="outline"
-                    className="mt-3 w-full border-red-200 text-red-600 hover:bg-red-50"
-                  >
-                    <Trash className="h-4 w-4 mr-2" />
-                    Remove Sub Service
-                  </Button>
+                  {/* Items Preview */}
+                  {subservice.items.length > 0 && (
+                    <div className="mt-3 pt-3 border-t">
+                      <Label className="mb-2 block">Clothing Items</Label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {subservice.items.map((item, itemIndex) => (
+                          <Badge 
+                            key={itemIndex} 
+                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center gap-1"
+                          >
+                            <span>{item.name}</span>
+                            <button 
+                              onClick={() => handleRemoveItem(index, itemIndex)}
+                              className="ml-1 text-blue-400 hover:text-blue-600"
+                            >
+                              <Trash className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      type="button"
+                      onClick={() => handleToggleItemsPanel(index)}
+                      variant="outline"
+                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                      size="sm"
+                    >
+                      <ShoppingBag className="h-4 w-4 mr-1" />
+                      {activeSubserviceIndex === index ? 'Hide Items' : 'Add Items'}
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      onClick={() => handleRemoveSubservice(index)}
+                      variant="outline"
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                      size="sm"
+                    >
+                      <Trash className="h-4 w-4 mr-1" />
+                      Remove
+                    </Button>
+                  </div>
+                  
+                  {/* Add Items Panel */}
+                  {activeSubserviceIndex === index && (
+                    <div className="mt-3 pt-3 border-t space-y-3">
+                      <h4 className="font-medium text-sm text-gray-700">Add Clothing Item</h4>
+                      <div>
+                        <Label htmlFor={`item-name-${index}`}>Item Name</Label>
+                        <Input
+                          id={`item-name-${index}`}
+                          placeholder="Item name"
+                          value={newItem.name}
+                          onChange={(e) => handleNewItemChange("name", e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor={`standard-price-${index}`}>Standard Price</Label>
+                          <Input
+                            id={`standard-price-${index}`}
+                            type="number"
+                            placeholder="Standard Price"
+                            value={newItem.standardPrice}
+                            onChange={(e) => handleNewItemChange("standardPrice", parseFloat(e.target.value) || 0)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`express-price-${index}`}>Express Price</Label>
+                          <Input
+                            id={`express-price-${index}`}
+                            type="number"
+                            placeholder="Express Price"
+                            value={newItem.expressPrice}
+                            onChange={(e) => handleNewItemChange("expressPrice", parseFloat(e.target.value) || 0)}
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                      
+                      <Button
+                        type="button"
+                        onClick={handleAddItem}
+                        variant="outline"
+                        className="w-full text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-200"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add Item
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -30,3 +30,11 @@ export interface Studio {
   location?: string;
   status?: 'active' | 'inactive';
 }
+
+// New type for adding clothing items in the modal
+export interface NewClothingItem {
+  name: string;
+  standardPrice: number;
+  expressPrice: number;
+  icon?: string;
+}
