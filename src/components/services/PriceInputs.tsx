@@ -39,7 +39,7 @@ const PriceInputs: React.FC<PriceInputsProps> = ({
         <Input
           id={`subservice-unit-${index}`}
           type="text"
-          placeholder="Enter unit (e.g., per Kg, per piece)"
+          placeholder="Enter price"
           value={priceUnit}
           onChange={(e) => onPriceUnitChange(e.target.value)}
         />
