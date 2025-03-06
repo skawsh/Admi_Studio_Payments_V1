@@ -21,8 +21,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header toggleSidebar={toggleSidebar} isSidebarOpen={sidebarOpen} />
         
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 animate-fade-in">
-          <div className="container mx-auto max-w-7xl">{children}</div>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 pb-0 animate-fade-in">
+          <div className="container mx-auto max-w-7xl mb-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>
