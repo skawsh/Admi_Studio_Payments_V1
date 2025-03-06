@@ -18,6 +18,11 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
   existingServices,
   index
 }) => {
+  // Filter out available subservices based on the selected service
+  const availableSubservices = selectedService 
+    ? existingServices.find(s => s.id === selectedService)?.subservices || []
+    : [];
+
   return (
     <div className="space-y-3">
       <Label htmlFor={`subservice-name-${index}`}>Sub Service Name</Label>
@@ -25,13 +30,11 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
         onValueChange={onValueChange}
         value={value}
       >
-        <SelectTrigger>
+        <SelectTrigger id={`subservice-name-${index}`} className="bg-white">
           <SelectValue placeholder="Select a subservice" />
         </SelectTrigger>
         <SelectContent>
-          {existingServices
-            .find(s => s.id === selectedService)
-            ?.subservices.map((sub) => (
+          {availableSubservices.map((sub) => (
             <SelectItem key={sub.id} value={sub.id}>
               {sub.name}
             </SelectItem>
