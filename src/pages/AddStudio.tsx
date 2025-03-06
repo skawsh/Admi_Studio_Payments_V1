@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, PlusCircle, X } from 'lucide-react';
@@ -125,7 +124,6 @@ const AddStudio: React.FC = () => {
 
   const handleAddServiceSubmit = (serviceName: string, subservices: Omit<Subservice, "id">[]) => {
     try {
-      // Validate input data before processing
       if (!serviceName.trim()) {
         throw new Error("Service name is required");
       }
@@ -147,7 +145,6 @@ const AddStudio: React.FC = () => {
       
       let subserviceIds: { id: string; name: string }[] = [];
       
-      // Process each subservice
       for (const subservice of subservices) {
         if (!subservice.name.trim()) continue;
         
@@ -170,7 +167,6 @@ const AddStudio: React.FC = () => {
         }
       }
 
-      // Update state with new service
       setAddedServices(prev => [...prev, {
         id: newService.id,
         name: newService.name,
@@ -791,52 +787,59 @@ const AddStudio: React.FC = () => {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end space-x-3">
-              <div className="mr-auto space-y-4">
-                <Button 
-                  variant="service" 
-                  onClick={handleAddService}
-                  className="mb-2"
-                  type="button"
-                >
-                  <PlusCircle className="h-4 w-4 mr-1" />
-                  Add Services
-                </Button>
-                
-                {addedServices.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm p-4 max-w-lg">
-                    <h3 className="font-medium text-gray-700 mb-2">Added Services</h3>
-                    <div className="space-y-2">
-                      {addedServices.map(service => (
-                        <div 
-                          key={service.id} 
-                          className="bg-gray-50 p-2 rounded flex items-start justify-between"
-                        >
-                          <div>
-                            <p className="font-medium text-sm">{service.name}</p>
-                            <div className="flex flex-wrap mt-1 gap-1">
-                              {service.subservices.map(sub => (
-                                <Badge key={sub.id} variant="outline" className="text-xs bg-blue-50">
-                                  {sub.name}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-6 w-6" 
-                            onClick={() => handleRemoveService(service.id)}
+            <Card>
+              <CardHeader>
+                <CardTitle>Services</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Button 
+                    variant="service" 
+                    onClick={handleAddService}
+                    className="mb-2"
+                    type="button"
+                  >
+                    <PlusCircle className="h-4 w-4 mr-1" />
+                    Add Services
+                  </Button>
+                  
+                  {addedServices.length > 0 && (
+                    <div className="bg-white rounded-lg shadow-sm p-4">
+                      <h3 className="font-medium text-gray-700 mb-2">Added Services</h3>
+                      <div className="space-y-2">
+                        {addedServices.map(service => (
+                          <div 
+                            key={service.id} 
+                            className="bg-gray-50 p-2 rounded flex items-start justify-between"
                           >
-                            <X className="h-4 w-4 text-gray-500" />
-                          </Button>
-                        </div>
-                      ))}
+                            <div>
+                              <p className="font-medium text-sm">{service.name}</p>
+                              <div className="flex flex-wrap mt-1 gap-1">
+                                {service.subservices.map(sub => (
+                                  <Badge key={sub.id} variant="outline" className="text-xs bg-blue-50">
+                                    {sub.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-6 w-6" 
+                              onClick={() => handleRemoveService(service.id)}
+                            >
+                              <X className="h-4 w-4 text-gray-500" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-              
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={handleGoBack}
