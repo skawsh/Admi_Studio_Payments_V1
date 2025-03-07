@@ -196,9 +196,9 @@ const AddStudio: React.FC = () => {
     }, 1000);
   };
 
-  const formatPrice = (price?: number, unit?: string) => {
-    if (price === undefined || price === 0) return "";
-    return `₹${price}${unit ? ` ${unit}` : ""}`;
+  const formatPrice = (price?: number | string, unit?: string) => {
+    if (price === undefined || price === 0 || price === '') return "Not set";
+    return `₹${price}`;
   };
 
   return (
@@ -813,13 +813,30 @@ const AddStudio: React.FC = () => {
                                 {service.subservices.map(sub => (
                                   <div 
                                     key={sub.id} 
-                                    className="flex justify-between items-center py-1.5 px-2 my-1 bg-white rounded border border-gray-100"
+                                    className="flex flex-col py-2 px-3 my-1 bg-white rounded border border-gray-100"
                                   >
-                                    <span className="text-sm font-medium text-gray-700">{sub.name}</span>
-                                    {(sub.basePrice || sub.basePrice === 0) && (
-                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
-                                        {formatPrice(sub.basePrice, sub.priceUnit)}
-                                      </Badge>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm font-medium text-gray-700">{sub.name}</span>
+                                    </div>
+                                    
+                                    {(sub.basePrice !== undefined && sub.basePrice !== 0) && (
+                                      <div className="mt-1 grid grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                          <span className="text-gray-500">Price per KG:</span>
+                                          <div className="font-semibold text-blue-700">
+                                            {formatPrice(sub.basePrice)}
+                                          </div>
+                                        </div>
+                                        
+                                        {sub.priceUnit && (
+                                          <div>
+                                            <span className="text-gray-500">Price per Item:</span>
+                                            <div className="font-semibold text-blue-700">
+                                              {formatPrice(sub.priceUnit)}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
                                     )}
                                   </div>
                                 ))}
