@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -15,15 +14,8 @@ import { Plus } from "lucide-react";
 import { Subservice, NewClothingItem, ClothingItem } from "@/types/serviceTypes";
 import { useToast } from "@/hooks/use-toast";
 import { mockServices } from "@/data/mockServiceData";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import SubserviceForm from "./SubserviceForm";
-import { Input } from "@/components/ui/input";
+import SelectSubservice from "./SelectSubservice";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -50,11 +42,15 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   });
   const { toast } = useToast();
 
-  const handleServiceSelect = (serviceId: string) => {
-    const service = existingServices.find(s => s.id === serviceId);
+  const handleServiceSelect = (serviceValue: string) => {
+    setServiceName(serviceValue);
+    
+    // Try to find the service ID based on the name
+    const service = existingServices.find(s => s.name === serviceValue);
     if (service) {
-      setServiceName(service.name);
-      setSelectedService(serviceId);
+      setSelectedService(service.id);
+    } else {
+      setSelectedService("");
     }
   };
 
@@ -165,7 +161,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
   };
 
   const handleSave = () => {
-    // Validation checks
     if (!serviceName.trim()) {
       toast({
         title: "Invalid input",
@@ -186,7 +181,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
     }
 
     try {
-      // Ensure all number fields are properly converted and have fallback values
       const cleanedSubservices = subservices.map(sub => ({
         ...sub,
         name: sub.name.trim(),
@@ -201,7 +195,6 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
         }))
       }));
       
-      // Call the onAddService prop with the cleaned data
       onAddService(serviceName.trim(), cleanedSubservices);
       resetForm();
     } catch (error) {
@@ -241,28 +234,14 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 
         <div className="space-y-6 py-4">
           <div>
-            <Label htmlFor="service-name">Service Name</Label>
-            <div className="flex space-x-2 mt-1">
-              <Input
-                id="service-name"
-                value={serviceName}
-                onChange={(e) => setServiceName(e.target.value)}
-                placeholder="Enter service name"
-                className="flex-1"
-              />
-              <Select onValueChange={handleServiceSelect} value={selectedService}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Or select existing" />
-                </SelectTrigger>
-                <SelectContent>
-                  {existingServices.map((service) => (
-                    <SelectItem key={service.id} value={service.id}>
-                      {service.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <SelectSubservice
+              label="Service Name"
+              placeholder="Enter or select service..."
+              value={serviceName}
+              onValueChange={handleServiceSelect}
+              existingServices={existingServices}
+              isServiceSelect={true}
+            />
           </div>
 
           <div>

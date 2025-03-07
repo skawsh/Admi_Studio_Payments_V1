@@ -2,27 +2,23 @@
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Search, ChevronDown, X } from "lucide-react";
 
 interface SelectSubserviceProps {
   value: string;
   onValueChange: (value: string) => void;
-  selectedService: string;
+  selectedService?: string;
   existingServices: any[];
-  index: number;
+  index?: number;
+  label?: string;
+  placeholder?: string;
+  isServiceSelect?: boolean;
 }
 
 const SelectSubservice: React.FC<SelectSubserviceProps> = ({
@@ -30,23 +26,36 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
   onValueChange,
   selectedService,
   existingServices,
-  index
+  index = 0,
+  label = "Sub Service Name",
+  placeholder = "Search or select subservice...",
+  isServiceSelect = false
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Filter out available subservices based on the selected service
-  const availableSubservices = selectedService 
-    ? existingServices.find(s => s.id === selectedService)?.subservices || []
-    : [];
+  // Get available options based on whether this is a service or subservice selector
+  const getAvailableOptions = () => {
+    if (isServiceSelect) {
+      // For service selection, return all services
+      return existingServices;
+    } else {
+      // For subservice selection, filter by selected service
+      return selectedService 
+        ? existingServices.find(s => s.id === selectedService)?.subservices || []
+        : [];
+    }
+  };
+
+  const availableOptions = getAvailableOptions();
     
-  // Filter subservices based on search term
-  const filteredSubservices = availableSubservices.filter(sub => 
-    sub.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter options based on search term
+  const filteredOptions = availableOptions.filter(item => 
+    (isServiceSelect ? item.name : item.name).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSelect = (subserviceName: string) => {
-    onValueChange(subserviceName);
+  const handleSelect = (optionName: string) => {
+    onValueChange(optionName);
     setIsDropdownOpen(false);
     setSearchTerm("");
   };
@@ -59,7 +68,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
 
   return (
     <div className="space-y-3">
-      <Label htmlFor={`subservice-name-${index}`}>Sub Service Name</Label>
+      <Label htmlFor={`${isServiceSelect ? 'service' : 'subservice'}-name-${index}`}>{label}</Label>
       
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
@@ -83,7 +92,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
               </div>
             ) : (
               <div className="flex items-center justify-between w-full px-10 py-2">
-                <span className="text-sm text-gray-400">Search or select subservice...</span>
+                <span className="text-sm text-gray-400">{placeholder}</span>
               </div>
             )}
             
@@ -94,12 +103,12 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
-          className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white p-0" 
+          className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white p-0 z-50" 
           align="start"
         >
           <div className="p-2 border-b">
             <Input
-              placeholder="Search subservices..."
+              placeholder={`Search ${isServiceSelect ? 'services' : 'subservices'}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -108,21 +117,21 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
           </div>
           
           <div className="max-h-[200px] overflow-y-auto">
-            {filteredSubservices.length > 0 ? (
-              filteredSubservices.map((sub) => (
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => (
                 <DropdownMenuItem 
-                  key={sub.id} 
+                  key={option.id} 
                   className="cursor-pointer px-4 py-2 text-sm hover:bg-blue-50"
-                  onClick={() => handleSelect(sub.name)}
+                  onClick={() => handleSelect(option.name)}
                 >
-                  {sub.name}
+                  {option.name}
                 </DropdownMenuItem>
               ))
             ) : (
               <div className="p-2 text-sm text-gray-500 text-center">
-                {availableSubservices.length === 0 
-                  ? "No subservices available for selected service" 
-                  : "No matching subservices found"}
+                {availableOptions.length === 0 
+                  ? `No ${isServiceSelect ? 'services' : 'subservices'} available` 
+                  : `No matching ${isServiceSelect ? 'services' : 'subservices'} found`}
               </div>
             )}
           </div>
