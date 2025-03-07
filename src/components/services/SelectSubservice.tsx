@@ -50,9 +50,13 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
   const availableOptions = getAvailableOptions();
     
   // Filter options based on search term
-  const filteredOptions = availableOptions.filter(item => 
-    (isServiceSelect ? item.name : item.name).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOptions = searchTerm.trim() === "" 
+    ? availableOptions 
+    : availableOptions.filter(item => 
+        (isServiceSelect ? item.name : item.name)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      );
 
   const handleSelect = (optionName: string) => {
     onValueChange(optionName);
