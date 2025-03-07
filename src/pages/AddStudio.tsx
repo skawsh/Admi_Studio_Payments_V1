@@ -131,47 +131,18 @@ const AddStudio: React.FC = () => {
       if (!subservices.length || !subservices.some(sub => sub.name.trim())) {
         throw new Error("At least one subservice with a name is required");
       }
-      
-      const tempStudioId = "temp-studio-id";
-      const newService = addServiceToStudio(tempStudioId, {
-        name: serviceName,
-        subservices: [],
-        enabled: true
-      });
-      
-      if (!newService || !newService.id) {
-        throw new Error("Failed to add service");
-      }
-      
-      let subserviceIds: { id: string; name: string }[] = [];
-      
-      for (const subservice of subservices) {
-        if (!subservice.name.trim()) continue;
-        
-        const newSubservice = addSubserviceToService(tempStudioId, newService.id, {
-          ...subservice,
-          basePrice: parseFloat(String(subservice.basePrice)) || 0,
-          priceUnit: subservice.priceUnit || "",
-          items: (subservice.items || []).map(item => ({
-            ...item,
-            standardPrice: parseFloat(String(item.standardPrice)) || 0,
-            expressPrice: parseFloat(String(item.expressPrice)) || 0
-          }))
-        });
-        
-        if (newSubservice && newSubservice.id) {
-          subserviceIds.push({
-            id: newSubservice.id,
-            name: newSubservice.name
-          });
-        }
-      }
 
-      setAddedServices(prev => [...prev, {
-        id: newService.id,
-        name: newService.name,
-        subservices: subserviceIds
-      }]);
+      const serviceId = `temp-${Math.random().toString(36).substring(2, 9)}`;
+      const newService: AddedService = {
+        id: serviceId,
+        name: serviceName,
+        subservices: subservices.map(sub => ({
+          id: `temp-${Math.random().toString(36).substring(2, 9)}`,
+          name: sub.name
+        }))
+      };
+
+      setAddedServices(prev => [...prev, newService]);
       
       toast({
         title: "Success",
