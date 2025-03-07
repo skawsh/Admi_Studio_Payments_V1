@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { 
   DropdownMenu, 
@@ -33,6 +33,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [filteredOptions, setFilteredOptions] = useState<any[]>([]);
 
   // Get available options based on whether this is a service or subservice selector
   const getAvailableOptions = () => {
@@ -47,21 +48,27 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
     }
   };
 
-  const availableOptions = getAvailableOptions();
-    
-  // Filter options based on search term
-  const filteredOptions = searchTerm.trim() === "" 
-    ? availableOptions 
-    : availableOptions.filter(item => 
-        (isServiceSelect ? item.name : item.name)
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
+  // Update filtered options when search term or available options change
+  useEffect(() => {
+    const availableOptions = getAvailableOptions();
+    if (searchTerm.trim() === "") {
+      setFilteredOptions(availableOptions);
+    } else {
+      const filtered = availableOptions.filter(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      setFilteredOptions(filtered);
+    }
+  }, [searchTerm, selectedService, existingServices, isServiceSelect]);
 
   const handleSelect = (optionName: string) => {
     onValueChange(optionName);
     setIsDropdownOpen(false);
     setSearchTerm("");
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
   const clearSelection = (e: React.MouseEvent) => {
@@ -114,7 +121,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
             <Input
               placeholder={`Search ${isServiceSelect ? 'services' : 'subservices'}...`}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               autoFocus
             />
@@ -133,7 +140,7 @@ const SelectSubservice: React.FC<SelectSubserviceProps> = ({
               ))
             ) : (
               <div className="p-2 text-sm text-gray-500 text-center">
-                {availableOptions.length === 0 
+                {getAvailableOptions().length === 0 
                   ? `No ${isServiceSelect ? 'services' : 'subservices'} available` 
                   : `No matching ${isServiceSelect ? 'services' : 'subservices'} found`}
               </div>
