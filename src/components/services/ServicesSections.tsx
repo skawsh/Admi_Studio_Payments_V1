@@ -104,7 +104,7 @@ const ServicesSections: React.FC<ServicesSectionsProps> = ({
 
   return (
     <div className="space-y-4 mt-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="flex flex-col space-y-4">
         <ServiceSection 
           services={filteredServices}
           expandedServices={expandedServices}
