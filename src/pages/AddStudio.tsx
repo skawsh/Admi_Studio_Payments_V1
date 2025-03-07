@@ -25,6 +25,7 @@ import AddServiceModal from '@/components/services/AddServiceModal';
 import { addServiceToStudio, addSubserviceToService } from '@/data/mockServiceData';
 import { Subservice, Service } from '@/types/serviceTypes';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const studioFormSchema = z.object({
   name: z.string().min(1, "Studio name is required"),
@@ -70,6 +71,8 @@ type AddedService = {
   subservices: {
     id: string;
     name: string;
+    basePrice?: number;
+    priceUnit?: string;
   }[];
 };
 
@@ -138,7 +141,9 @@ const AddStudio: React.FC = () => {
         name: serviceName,
         subservices: subservices.map(sub => ({
           id: `temp-${Math.random().toString(36).substring(2, 9)}`,
-          name: sub.name
+          name: sub.name,
+          basePrice: sub.basePrice,
+          priceUnit: sub.priceUnit
         }))
       };
 
@@ -189,6 +194,11 @@ const AddStudio: React.FC = () => {
     setTimeout(() => {
       navigate('/studios');
     }, 1000);
+  };
+
+  const formatPrice = (price?: number, unit?: string) => {
+    if (price === undefined || price === 0) return "";
+    return `₹${price}${unit ? ` ${unit}` : ""}`;
   };
 
   return (
@@ -777,33 +787,47 @@ const AddStudio: React.FC = () => {
                   {addedServices.length > 0 && (
                     <div className="bg-white rounded-lg shadow-sm p-4">
                       <h3 className="font-medium text-gray-700 mb-2">Added Services</h3>
-                      <div className="space-y-2">
-                        {addedServices.map(service => (
-                          <div 
-                            key={service.id} 
-                            className="bg-gray-50 p-2 rounded flex items-start justify-between"
-                          >
-                            <div>
-                              <p className="font-medium text-sm">{service.name}</p>
-                              <div className="flex flex-wrap mt-1 gap-1">
+                      
+                      <ScrollArea className="max-h-[300px] pr-4">
+                        <div className="space-y-4">
+                          {addedServices.map(service => (
+                            <div 
+                              key={service.id} 
+                              className="bg-gray-50 p-3 rounded border border-gray-100"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <p className="font-medium text-gray-800">{service.name}</p>
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-6 w-6" 
+                                  onClick={() => handleRemoveService(service.id)}
+                                >
+                                  <X className="h-4 w-4 text-gray-500" />
+                                </Button>
+                              </div>
+                              
+                              <div className="mt-2">
                                 {service.subservices.map(sub => (
-                                  <Badge key={sub.id} variant="outline" className="text-xs bg-blue-50">
-                                    {sub.name}
-                                  </Badge>
+                                  <div 
+                                    key={sub.id} 
+                                    className="flex justify-between items-center py-1.5 px-2 my-1 bg-white rounded border border-gray-100"
+                                  >
+                                    <span className="text-sm font-medium text-gray-700">{sub.name}</span>
+                                    {(sub.basePrice || sub.basePrice === 0) && (
+                                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                                        {formatPrice(sub.basePrice, sub.priceUnit)}
+                                      </Badge>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-6 w-6" 
-                              onClick={() => handleRemoveService(service.id)}
-                            >
-                              <X className="h-4 w-4 text-gray-500" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
                     </div>
                   )}
                 </div>

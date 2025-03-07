@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -16,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { mockServices } from "@/data/mockServiceData";
 import SubserviceForm from "./SubserviceForm";
 import SelectSubservice from "./SelectSubservice";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -222,7 +224,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh]">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold text-blue-600">
             Add Service
@@ -232,54 +234,56 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          <div>
-            <SelectSubservice
-              label="Service Name"
-              placeholder="Enter or select service..."
-              value={serviceName}
-              onValueChange={handleServiceSelect}
-              existingServices={existingServices}
-              isServiceSelect={true}
-            />
-          </div>
-
-          <div>
-            <Label>Sub Services</Label>
-            <div className="space-y-4 mt-2">
-              {subservices.map((subservice, index) => (
-                <SubserviceForm
-                  key={index}
-                  subservice={subservice}
-                  index={index}
-                  activeSubserviceIndex={activeSubserviceIndex}
-                  selectedService={selectedService}
-                  existingServices={existingServices}
-                  newItem={newItem}
-                  onSubserviceSelect={handleSubserviceSelect}
-                  onSubserviceChange={handleSubserviceChange}
-                  onToggleItemsPanel={handleToggleItemsPanel}
-                  onRemoveSubservice={handleRemoveSubservice}
-                  onNewItemChange={handleNewItemChange}
-                  onAddItem={handleAddItem}
-                  onRemoveItem={handleRemoveItem}
-                />
-              ))}
+        <ScrollArea className="max-h-[calc(85vh-10rem)] pr-4">
+          <div className="space-y-6 py-4">
+            <div>
+              <SelectSubservice
+                label="Service Name"
+                placeholder="Enter or select service..."
+                value={serviceName}
+                onValueChange={handleServiceSelect}
+                existingServices={existingServices}
+                isServiceSelect={true}
+              />
             </div>
 
-            <Button
-              type="button"
-              onClick={handleAddSubservice}
-              variant="outline"
-              className="mt-4 text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-200"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Sub Service
-            </Button>
-          </div>
-        </div>
+            <div>
+              <Label>Sub Services</Label>
+              <div className="space-y-4 mt-2">
+                {subservices.map((subservice, index) => (
+                  <SubserviceForm
+                    key={index}
+                    subservice={subservice}
+                    index={index}
+                    activeSubserviceIndex={activeSubserviceIndex}
+                    selectedService={selectedService}
+                    existingServices={existingServices}
+                    newItem={newItem}
+                    onSubserviceSelect={handleSubserviceSelect}
+                    onSubserviceChange={handleSubserviceChange}
+                    onToggleItemsPanel={handleToggleItemsPanel}
+                    onRemoveSubservice={handleRemoveSubservice}
+                    onNewItemChange={handleNewItemChange}
+                    onAddItem={handleAddItem}
+                    onRemoveItem={handleRemoveItem}
+                  />
+                ))}
+              </div>
 
-        <DialogFooter>
+              <Button
+                type="button"
+                onClick={handleAddSubservice}
+                variant="outline"
+                className="mt-4 text-blue-600 bg-blue-50 hover:bg-blue-100 border-blue-200"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Sub Service
+              </Button>
+            </div>
+          </div>
+        </ScrollArea>
+
+        <DialogFooter className="mt-6">
           <DialogClose asChild>
             <Button variant="outline" onClick={resetForm}>Cancel</Button>
           </DialogClose>
