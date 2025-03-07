@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { mockServices } from '@/data/mockServiceData';
-import ServiceList from '@/components/services/ServiceList';
+import ServicesSections from '@/components/services/ServicesSections';
 import SearchBox from '@/components/services/SearchBox';
 import AddServiceModal from '@/components/services/AddServiceModal';
 import { Button } from '@/components/ui/button';
@@ -134,10 +134,10 @@ const Services: React.FC = () => {
           <SearchBox 
             value={searchTerm}
             onChange={setSearchTerm}
-            placeholder="Search services or subservices..."
+            placeholder="Search services, subservices or items..."
           />
           
-          <ServiceList 
+          <ServicesSections 
             key={refreshKey}
             services={services}
             searchTerm={searchTerm}

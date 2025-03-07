@@ -11,7 +11,7 @@ import {
   toggleServiceEnabled,
   toggleSubserviceEnabled
 } from '@/data/mockServiceData';
-import ServiceList from '@/components/services/ServiceList';
+import ServicesSections from '@/components/services/ServicesSections';
 import SearchBox from '@/components/services/SearchBox';
 import AddServiceModal from '@/components/services/AddServiceModal';
 import { Button } from '@/components/ui/button';
@@ -175,7 +175,7 @@ const StudioServices: React.FC = () => {
             placeholder="Search services, subservices or items..."
           />
           
-          <ServiceList 
+          <ServicesSections 
             key={refreshKey}
             services={studio.services}
             searchTerm={searchTerm}
