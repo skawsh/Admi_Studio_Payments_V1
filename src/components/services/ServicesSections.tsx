@@ -107,7 +107,7 @@ const ServicesSections: React.FC<ServicesSectionsProps> = ({
 
   return (
     <div className="space-y-4 mt-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Services Section */}
         <div className="bg-white rounded-lg shadow-sm p-4">
           <h3 className="font-medium text-lg mb-3 border-b pb-2">Services</h3>
